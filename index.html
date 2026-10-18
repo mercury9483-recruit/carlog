@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1e6b4f">
+<title>차계부</title>
+<style>
+:root{
+  --bg:#f3f5f1; --card:#fff; --ink:#18221d; --sub:#64726a; --line:#e1e6e1; --soft:#eef2ee;
+  --acc:#1e6b4f; --acc-ink:#fff; --acc-soft:#e1efe8;
+  --red:#b93a2e; --red-soft:#fbeae8; --amber:#a86a0c; --amber-soft:#fcf1dc;
+  --green:#2c7a4b; --green-soft:#e3f2e8; --gray:#7d8a83; --gray-soft:#eceeed;
+  --shadow:0 1px 2px rgba(20,40,30,.06),0 4px 14px rgba(20,40,30,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#101513; --card:#19211e; --ink:#e7eee9; --sub:#9aa9a1; --line:#2a3530; --soft:#222c28;
+    --acc:#4fbf94; --acc-ink:#07261a; --acc-soft:#1c3329;
+    --red:#ee8077; --red-soft:#3a201e; --amber:#e8b25c; --amber-soft:#35290f;
+    --green:#63c58a; --green-soft:#17301f; --gray:#8e9b94; --gray-soft:#242c28;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101513; --card:#19211e; --ink:#e7eee9; --sub:#9aa9a1; --line:#2a3530; --soft:#222c28;
+  --acc:#4fbf94; --acc-ink:#07261a; --acc-soft:#1c3329;
+  --red:#ee8077; --red-soft:#3a201e; --amber:#e8b25c; --amber-soft:#35290f;
+  --green:#63c58a; --green-soft:#17301f; --gray:#8e9b94; --gray-soft:#242c28; --shadow:none;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Pretendard","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;
+  font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+#app{max-width:560px;margin:0 auto;min-height:100vh;padding:0 16px calc(84px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 0 10px}
+header h1{font-size:20px;margin:0;letter-spacing:-.02em}
+header .car{display:block;font-size:12.5px;color:var(--sub);margin-top:1px}
+.conn{font-size:12px;padding:4px 10px;border-radius:99px;background:var(--gray-soft);color:var(--sub);white-space:nowrap}
+.conn.ok{background:var(--green-soft);color:var(--green)}
+.conn.demo{background:var(--amber-soft);color:var(--amber)}
+.conn.err{background:var(--red-soft);color:var(--red)}
+.tab{display:none}.tab.on{display:block}
+.h2{font-size:17px;margin:18px 0 10px;letter-spacing:-.01em}
+.h3{font-size:13px;color:var(--sub);font-weight:600;margin:22px 2px 8px;letter-spacing:.01em}
+.card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:16px;margin-bottom:12px}
+
+/* 홈 */
+.hero{background:var(--acc);color:var(--acc-ink);border-radius:20px;padding:20px 20px 18px;margin-bottom:12px}
+.hero .lb{font-size:13px;opacity:.85}
+.hero .km{font-size:40px;font-weight:750;letter-spacing:-.03em;line-height:1.15;font-variant-numeric:tabular-nums;margin:2px 0}
+.hero .km small{font-size:17px;font-weight:600;margin-left:3px;opacity:.9}
+.hero .sub{font-size:13px;opacity:.85}
+.hero .btn{margin-top:14px;background:rgba(255,255,255,.18);color:inherit;border:0;padding:9px 14px;border-radius:10px;font-weight:650;font-size:14px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:14px 16px}
+.stat .lb{font-size:12.5px;color:var(--sub)}
+.stat .v{font-size:21px;font-weight:700;letter-spacing:-.02em;margin-top:2px;font-variant-numeric:tabular-nums}
+.stat .s{font-size:12px;color:var(--sub);margin-top:1px}
+.list{background:var(--card);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:12px}
+.row{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;border-top:0;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.row:last-child{border-bottom:0}
+.row:active{background:var(--soft)}
+.dot{width:10px;height:10px;border-radius:50%;flex:none;background:var(--gray)}
+.dot.over{background:var(--red)}.dot.soon{background:var(--amber)}.dot.ok{background:var(--green)}.dot.unk{background:var(--gray)}.dot.done{background:var(--acc)}
+.rm{flex:1;min-width:0}
+.rt{font-weight:600;font-size:15px;overflow-wrap:anywhere}
+.rs{font-size:12.5px;color:var(--sub);margin-top:1px}
+.badge{font-size:12px;font-weight:650;padding:3px 9px;border-radius:99px;white-space:nowrap;flex:none}
+.badge.over{background:var(--red-soft);color:var(--red)}
+.badge.soon{background:var(--amber-soft);color:var(--amber)}
+.badge.ok{background:var(--green-soft);color:var(--green)}
+.badge.unk{background:var(--gray-soft);color:var(--sub)}
+.badge.done{background:var(--acc-soft);color:var(--acc)}
+.note{font-size:13px;color:var(--sub);margin:-4px 4px 12px}
+.watch{border-left:4px solid var(--amber)}
+.watch b{display:block;margin-bottom:3px}
+.watch p{margin:0;font-size:13.5px;color:var(--sub)}
+details.card{padding:0}
+details summary{list-style:none;cursor:pointer;padding:14px 16px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"›";transform:rotate(90deg);color:var(--sub);font-size:20px;line-height:1;transition:transform .15s}
+details[open] summary::after{transform:rotate(-90deg)}
+details .inner{padding:0 16px 14px;font-size:13.5px;color:var(--sub);white-space:pre-line}
+details.list{padding:0}
+details.list .rows{border-top:1px solid var(--line)}
+.bar{height:8px;border-radius:99px;background:var(--soft);overflow:hidden;margin:10px 0 4px}
+.bar i{display:block;height:100%;background:var(--acc);border-radius:99px}
+.empty{padding:26px 16px;text-align:center;color:var(--sub);font-size:14px}
+.link{background:none;border:0;color:var(--sub);font:inherit;font-size:12.5px;text-decoration:underline;padding:8px 0;cursor:pointer}
+
+/* 폼 */
+.seg{display:grid;grid-template-columns:repeat(4,1fr);background:var(--soft);border-radius:12px;padding:3px;margin-bottom:12px;gap:2px}
+.seg button{border:0;background:none;padding:9px 0;border-radius:9px;font:inherit;font-size:14px;color:var(--sub);font-weight:600;cursor:pointer}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.form label,.form .field{display:block;margin-bottom:14px}
+.form .lbl,.form label>span{display:block;font-size:12.5px;color:var(--sub);font-weight:600;margin-bottom:5px}
+input,select,textarea{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;appearance:none;-webkit-appearance:none}
+textarea{min-height:84px;resize:vertical}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--sub) 50%),linear-gradient(135deg,var(--sub) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:34px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:-1px;border-color:transparent}
+.addrow{display:flex;gap:8px}
+.addrow .btn{flex:none;white-space:nowrap}
+.btn{font:inherit;font-weight:650;border-radius:12px;padding:11px 16px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;min-height:44px}
+.btn.primary{background:var(--acc);color:var(--acc-ink);border-color:transparent;width:100%;font-size:16px;margin-top:4px}
+.btn.danger{color:var(--red);border-color:var(--red)}
+.btn.danger.arm{background:var(--red);color:#fff}
+.btn:disabled{opacity:.5}
+.line{display:flex;gap:8px;align-items:center;margin-top:8px;padding:8px 10px;background:var(--soft);border-radius:10px}
+.line .ln{flex:1;min-width:0;font-weight:600;font-size:14px;overflow-wrap:anywhere}
+.line input{width:112px;min-height:38px;padding:6px 10px;font-size:15px}
+.line .x{border:0;background:none;color:var(--sub);font-size:22px;line-height:1;padding:4px 6px;cursor:pointer}
+.ferr{color:var(--red);font-size:13.5px;margin-top:10px;min-height:1em}
+.hint{font-size:12.5px;color:var(--sub);margin-top:5px}
+
+/* 이력 */
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--card);color:var(--sub);border-radius:99px;padding:6px 13px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
+.chip.on{background:var(--acc);color:var(--acc-ink);border-color:transparent}
+.search{margin-bottom:10px}
+.hrow .amt{font-weight:650;font-variant-numeric:tabular-nums;font-size:14px;white-space:nowrap}
+.tag{font-size:11.5px;font-weight:650;color:var(--sub);background:var(--soft);border-radius:6px;padding:1px 7px;margin-right:6px}
+
+/* 비용 */
+.yr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.yr button{border:1px solid var(--line);background:var(--card);color:var(--ink);width:40px;height:40px;border-radius:12px;font-size:18px;cursor:pointer}
+.yr b{font-size:18px}
+.tot{font-size:28px;font-weight:750;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tbl{overflow-x:auto;border-radius:16px;background:var(--card);box-shadow:var(--shadow);margin-bottom:12px}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{padding:9px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{font-weight:650;color:var(--sub);font-size:12px}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--card);font-weight:600}
+td.sum,th.sum{font-weight:700;background:var(--soft)}
+tr:last-child td{border-bottom:0}
+svg text{fill:var(--sub);font-size:9px;font-family:inherit}
+svg .v{fill:var(--ink);font-weight:600}
+svg rect.b{fill:var(--acc)}
+
+/* 로드맵 */
+.tl{position:relative;padding-left:26px}
+.tl::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.step{position:relative;margin-bottom:12px}
+.step::before{content:"";position:absolute;left:-23px;top:20px;width:12px;height:12px;border-radius:50%;background:var(--gray);border:3px solid var(--bg)}
+.step.over::before{background:var(--red)}.step.soon::before{background:var(--amber)}.step.ok::before{background:var(--green)}.step.done::before{background:var(--acc)}
+.step .card{margin:0}
+.step .km{font-size:19px;font-weight:750;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.step .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.step .it{margin:6px 0 2px;font-size:14.5px}
+.step .pu{font-size:13px;color:var(--sub)}
+.step .cost{margin-top:8px;font-size:13px;font-weight:600}
+.step details{margin-top:8px}
+.step details summary{padding:6px 0;font-size:13px;color:var(--acc)}
+.step details .inner{padding:0 0 4px}
+
+/* 하단 탭 · 시트 · 토스트 */
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:20}
+nav .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+nav button{border:0;background:none;padding:8px 0 7px;color:var(--sub);font:inherit;font-size:11.5px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+nav button svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav button.on{color:var(--acc)}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:30;display:none}
+.scrim.on{display:block}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:31;background:var(--card);border-radius:20px 20px 0 0;max-height:88vh;overflow:auto;padding:18px 16px calc(20px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .22s ease;max-width:560px;margin:0 auto}
+.sheet.on{transform:none}
+.sheet h3{margin:0 0 14px;font-size:17px}
+.sheet .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.sheet .acts .btn.primary{margin:0}
+.toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:.2s;z-index:40;max-width:90vw}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.loading{padding:60px 0;text-align:center;color:var(--sub)}
+.nodb nav{display:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div><h1>차계부</h1><span class="car" id="carName"></span></div>
+    <span class="conn" id="conn">연결 중…</span>
+  </header>
+  <main>
+    <section class="tab on" id="tab-home"><div class="loading">불러오는 중…</div></section>
+    <section class="tab" id="tab-input"></section>
+    <section class="tab" id="tab-history"></section>
+    <section class="tab" id="tab-cost"></section>
+    <section class="tab" id="tab-road"></section>
+  </main>
+</div>
+<nav><div class="in" id="nav">
+  <button data-go="home" class="on"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg>홈</button>
+  <button data-go="input"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>입력</button>
+  <button data-go="history"><svg viewBox="0 0 24 24"><path d="M5 6h14M5 12h14M5 18h9"/></svg>이력</button>
+  <button data-go="cost"><svg viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>비용</button>
+  <button data-go="road"><svg viewBox="0 0 24 24"><path d="M6 3v18"/><path d="M6 5h11l-2 3.5 2 3.5H6"/></svg>로드맵</button>
+</div></nav>
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* ===== 설정 ===== */
+// 구글 Apps Script 웹앱 URL을 넣으면 구글시트와 연결됩니다. 비워 두면 '데모 모드'(이 기기 브라우저에만 저장)로 동작합니다.
+const CONFIG = { API_URL: '' };
+const SEED = null;
+// 공개 저장소에는 URL을 적지 않습니다. 처음 한 번 '연결 설정'에서 입력하거나 주소 뒤에 #u=<웹앱URL> 을 붙여 열면 이 기기에 저장됩니다.
+const apiUrl = () => CONFIG['API_URL'] || store.get('carlog-api') || '';
+
+/* ===== 유틸 ===== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const isNum = v => typeof v === 'number' && isFinite(v);
+const fmt = n => isNum(n) ? n.toLocaleString('ko-KR') : '';
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseD = s => { if (!s) return null; const [y,m,d] = String(s).split('-').map(Number); return (y && m && d) ? new Date(y, m-1, d) : null; };
+const today = () => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
+const dayDiff = (a, b) => Math.round((b - a) / 86400000);
+const addMonths = (d, n) => { const x = new Date(d); x.setMonth(x.getMonth() + n); return x; };
+const toNum = v => { const s = String(v ?? '').replace(/[^\d.-]/g, ''); return s === '' ? null : Number(s); };
+const clone = o => JSON.parse(JSON.stringify(o));
+const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+const mem = {};
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] ?? null; } },
+  set(k,v){ try { localStorage.setItem(k, v); } catch(e){ mem[k] = v; } },
+  del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } }
+};
+const won = n => isNum(n) && n ? (n >= 10000 ? (Math.round(n/1000)/10).toLocaleString('ko-KR') + '만원' : fmt(n) + '원') : '';
+const eta = days => {
+  if (days == null || !isFinite(days)) return '';
+  const t = new Date(today().getTime() + days * 86400000);
+  const when = `${t.getFullYear()}.${t.getMonth()+1}경`;
+  if (days < 45) return `약 ${Math.max(1, Math.round(days))}일 후`;
+  const m = Math.round(days / 30.4);
+  return m < 12 ? `약 ${m}개월 후 · ${when}` : `약 ${(days/365).toFixed(1)}년 후 · ${when}`;
+};
+
+/* ===== 데이터 계층 (구글시트 API / 데모) ===== */
+const idField = sheet => sheet === 'M_정비항목' ? '항목코드' : 'ID';
+let DB = null;
+
+function applyDemo(db, op){
+  const rows = db[op.sheet]; const f = idField(op.sheet);
+  if (op.action === 'append') rows.push(clone(op.row));
+  else if (op.action === 'update') { const r = rows.find(x => String(x[f]) === String(op.id)); if (r) Object.assign(r, op.row); }
+  else if (op.action === 'delete') db[op.sheet] = rows.filter(x => String(x[f]) !== String(op.id));
+}
+const API = {
+  async load(){
+    if (apiUrl()) {
+      const r = await fetch(apiUrl() + (apiUrl().includes('?') ? '&' : '?') + 'action=all');
+      const j = await r.json(); if (!j.ok) throw new Error(j.error || '불러오기 실패'); return j.data;
+    }
+    const saved = store.get('carlog-demo'); return saved ? JSON.parse(saved) : clone(SEED);
+  },
+  async send(ops){
+    if (apiUrl()) {
+      const r = await fetch(apiUrl(), { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({ action:'batch', ops }) });
+      const j = await r.json(); if (!j.ok) throw new Error(j.error || '저장 실패'); return j.data;
+    }
+    const db = clone(DB); ops.forEach(op => applyDemo(db, op)); store.set('carlog-demo', JSON.stringify(db)); return db;
+  }
+};
+
+/* ===== 계산 ===== */
+function calc(db){
+  const car = db['M_차량'][0] || {};
+  const items = db['M_정비항목'].filter(i => i.사용 !== 'N');
+  const itemMap = Object.fromEntries(db['M_정비항목'].map(i => [i.항목코드, i]));
+  const hist = db['R_정비이력'], odo = db['R_주행거리'], tax = db['R_세금보험'];
+  const t = today();
+  const kms = [...odo, ...hist, ...tax].map(r => r.주행거리).filter(isNum);
+  const currentKm = kms.length ? Math.max(...kms) : 0;
+  const pts = [...odo, ...hist, ...tax].filter(r => r.일자 && isNum(r.주행거리))
+    .map(r => ({ d: parseD(r.일자), km: r.주행거리 })).filter(p => p.d).sort((a,b) => a.d - b.d);
+  let rate = null, asOf = null;
+  if (pts.length) asOf = pts[pts.length-1].d;
+  if (pts.length >= 2) {
+    const a = pts[0], b = pts[pts.length-1], days = dayDiff(a.d, b.d);
+    if (days >= 30 && b.km > a.km) rate = (b.km - a.km) / days;
+  }
+  const reg = parseD(car.최초등록일);
+
+  const status = items.filter(i => isNum(i.주기km) || isNum(i.주기개월)).map(i => {
+    const hs = hist.filter(h => h.항목코드 === i.항목코드);
+    const lastRec = hs.slice().sort((a,b) => (b.주행거리 || 0) - (a.주행거리 || 0))[0];
+    const lastKm = lastRec ? lastRec.주행거리 : null;
+    const dated = hs.filter(h => h.일자).sort((a,b) => a.일자 < b.일자 ? 1 : -1)[0];
+    const lastDate = dated ? parseD(dated.일자) : null;
+    let nextKm = null, remKm = null, dueDate = null, daysLeft = null, unk = false;
+    if (isNum(i.주기km)) {
+      if (isNum(lastKm)) nextKm = lastKm + i.주기km;
+      else if (currentKm >= i.주기km) unk = true;
+      else nextKm = i.주기km;
+      if (nextKm != null) remKm = nextKm - currentKm;
+    }
+    if (isNum(i.주기개월)) {
+      const base = lastDate || (hs.length ? null : reg);
+      if (base) { dueDate = addMonths(base, i.주기개월); daysLeft = dayDiff(t, dueDate); if (!hs.length && daysLeft < 0) unk = true; }
+    }
+    let level = 'ok';
+    if (unk) level = 'unk';
+    else {
+      const thr = isNum(i.주기km) ? Math.max(500, i.주기km * 0.1) : 0;
+      const over = (remKm != null && remKm < 0) || (daysLeft != null && daysLeft < 0);
+      const soon = (remKm != null && remKm <= thr) || (daysLeft != null && daysLeft <= 60);
+      level = over ? 'over' : soon ? 'soon' : 'ok';
+    }
+    const estDays = (remKm != null && remKm > 0 && rate) ? remKm / rate : null;
+    const sortKey = Math.min(remKm != null ? (rate ? remKm / rate : remKm / 30) : 1e9, daysLeft != null ? daysLeft : 1e9);
+    return { item: i, level, lastKm, lastDate, nextKm, remKm, dueDate, daysLeft, estDays, sortKey };
+  });
+  const order = { over:0, soon:1, unk:2, ok:3 };
+  status.sort((a,b) => order[a.level] - order[b.level] || a.sortKey - b.sortKey);
+
+  const road = db['P_로드맵'].slice().sort((a,b) => a.예정km - b.예정km).map(r => {
+    const done = hist.filter(h => h.로드맵ID === r.ID);
+    const remKm = r.예정km - currentKm;
+    const level = done.length ? 'done' : remKm < 0 ? 'over' : remKm <= 3000 ? 'soon' : 'ok';
+    const dd = done.map(h => h.일자).filter(Boolean).sort().pop();
+    return { ...r, done: done.length > 0, doneDate: dd || null, remKm, level, estDays: (remKm > 0 && rate) ? remKm / rate : null };
+  });
+  return { car, items, itemMap, currentKm, rate, asOf, status, road, t };
+}
+let C = null;
+
+/* ===== 폼 스펙 ===== */
+const FIELDS = {
+  'R_정비이력': [['일자','date'],['주행거리','num'],['항목명','text'],['업체','text'],['비용','num'],['비고','text']],
+  'R_세금보험': [['일자','date'],['구분','select',['자동차세','보험','종합검사','기타']],['금액','num'],['주행거리','num'],['비고','text']],
+  'R_사고':     [['일자','date'],['내용','area'],['처리상태','select',['메모','접수','진행','종결']],['비고','text']],
+  'R_주행거리': [['일자','date'],['주행거리','num'],['비고','text']]
+};
+const TYPES = { '정비':'R_정비이력', '세금·보험':'R_세금보험', '사고':'R_사고', '주행거리':'R_주행거리' };
+const PREFIX = { 'R_정비이력':'H', 'R_세금보험':'T', 'R_사고':'A', 'R_주행거리':'K' };
+const LABEL = { '주행거리':'주행거리 (km)', '금액':'금액 (원)', '비용':'비용 (원)' };
+
+function fieldHTML(sheet, [name, kind, opts], val){
+  const lbl = LABEL[name] || name;
+  const v = val ?? '';
+  if (kind === 'select') return `<label><span>${lbl}</span><select name="${name}">${opts.map(o => `<option ${o === v ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select></label>`;
+  if (kind === 'area') return `<label><span>${lbl}</span><textarea name="${name}">${esc(v)}</textarea></label>`;
+  if (kind === 'date') return `<label><span>${lbl}</span><input type="date" name="${name}" value="${esc(v)}"></label>`;
+  if (kind === 'num') return `<label><span>${lbl}</span><input name="${name}" inputmode="numeric" value="${isNum(v) ? v : esc(v)}"></label>`;
+  return `<label><span>${lbl}</span><input name="${name}" value="${esc(v)}"></label>`;
+}
+function readFields(form, sheet){
+  const o = {};
+  FIELDS[sheet].forEach(([name, kind]) => {
+    const el = form.elements[name]; if (!el) return;
+    const raw = el.value.trim();
+    o[name] = kind === 'num' ? toNum(raw) : (raw === '' ? null : raw);
+  });
+  return o;
+}
+
+/* ===== 화면 상태 ===== */
+const S = { tab:'home', inType:'정비', lines:[], rmTouched:false, hFilter:'전체', hq:'', year: new Date().getFullYear() };
+const TABS = ['home','input','history','cost','road'];
+
+function go(tab, opt = {}){
+  if (opt.type) S.inType = opt.type;
+  if (opt.code) { const it = C.itemMap[opt.code]; S.inType = '정비'; S.lines = it ? [{ code: it.항목코드, name: it.항목명, cost: null }] : []; S.rmTouched = false; }
+  S.tab = tab;
+  TABS.forEach(t => $('#tab-' + t).classList.toggle('on', t === tab));
+  $$('#nav button').forEach(b => { b.classList.toggle('on', b.dataset.go === tab); b.setAttribute('aria-current', b.dataset.go === tab ? 'page' : 'false'); });
+  render(); window.scrollTo(0, 0);
+}
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), 2200); }
+function render(){
+  if (!DB) return;
+  C = calc(DB);
+  $('#carName').textContent = C.car.차종 || '';
+  ({ home: renderHome, input: renderInput, history: renderHistory, cost: renderCost, road: renderRoad })[S.tab]();
+}
+
+/* ===== 홈 ===== */
+const LV = { over:'기한 초과', soon:'임박', ok:'여유', unk:'기록 없음', done:'완료' };
+function statusRow(s){
+  const i = s.item; const parts = [];
+  if (s.level === 'unk') {
+    parts.push(isNum(i.주기km) ? `주기 ${fmt(i.주기km)}km` : `주기 ${i.주기개월}개월`, '교체 이력이 없습니다');
+  } else {
+    if (s.nextKm != null) parts.push(`다음 ${fmt(s.nextKm)}km`);
+    if (s.remKm != null) parts.push(s.remKm < 0 ? `${fmt(-s.remKm)}km 초과` : `${fmt(s.remKm)}km 남음`);
+    if (s.dueDate) parts.push(s.daysLeft < 0 ? `${ymd(s.dueDate)} 기한 지남` : `${ymd(s.dueDate)}까지`);
+    if (s.estDays != null && s.level !== 'over') parts.push(eta(s.estDays));
+  }
+  return `<button class="row" data-act="fix" data-code="${esc(i.항목코드)}"><span class="dot ${s.level}"></span>
+    <div class="rm"><div class="rt">${esc(i.항목명)}</div><div class="rs">${esc(parts.join(' · '))}</div></div>
+    <span class="badge ${s.level}">${LV[s.level]}</span></button>`;
+}
+function renderHome(){
+  const el = $('#tab-home'); const car = C.car;
+  const yearSum = sumYear(new Date().getFullYear());
+  const dday = car.다음검사일 ? dayDiff(C.t, parseD(car.다음검사일)) : null;
+  const urgent = C.status.filter(s => s.level === 'over' || s.level === 'soon');
+  const unk = C.status.filter(s => s.level === 'unk');
+  const oks = C.status.filter(s => s.level === 'ok');
+  const watch = C.items.filter(i => i.관찰);
+  const next = C.road.find(r => !r.done);
+  const prevKm = (() => { const done = C.road.filter(r => r.done).pop(); return done ? done.예정km : Math.max(0, Math.floor((C.currentKm) / 10000) * 10000 - 10000); })();
+  const pct = next ? Math.max(2, Math.min(100, Math.round((C.currentKm - prevKm) / (next.예정km - prevKm) * 100))) : 100;
+  el.innerHTML = `
+  <div class="hero"><div class="lb">현재 주행거리</div>
+    <div class="km">${fmt(C.currentKm)}<small>km</small></div>
+    <div class="sub">${C.asOf ? ymd(C.asOf) + ' 기준' : ''}${C.rate ? ` · 하루 평균 약 ${Math.round(C.rate)}km (월 ${fmt(Math.round(C.rate*30.4/10)*10)}km)` : ''}</div>
+    <button class="btn" data-go="input" data-type="주행거리">주행거리 갱신</button></div>
+  <div class="stats">
+    <div class="stat"><div class="lb">올해 지출</div><div class="v">${yearSum ? won(yearSum) : '—'}</div><div class="s">${yearSum ? '정비·세금·보험' : '비용 입력 시 집계'}</div></div>
+    <div class="stat"><div class="lb">다음 종합검사</div><div class="v">${dday == null ? '—' : dday > 0 ? 'D-' + dday : dday === 0 ? 'D-day' : 'D+' + (-dday)}</div><div class="s">${esc(car.다음검사일 || '')}</div></div>
+  </div>
+  <div class="h3">지금 챙길 것</div>
+  ${urgent.length ? `<div class="list">${urgent.map(statusRow).join('')}</div>` : `<div class="card empty">기한이 임박하거나 지난 항목이 없습니다 👍</div>`}
+  ${watch.length ? `<div class="h3">관찰 중</div>${watch.map(i => `<div class="card watch"><b>${esc(i.항목명)}</b><p>${esc(i.관찰)}</p></div>`).join('')}` : ''}
+  ${unk.length ? `<div class="h3">기록 확인 필요 · ${unk.length}건</div><div class="list">${unk.map(statusRow).join('')}</div>
+    <div class="note">원본 차계부에 교체 기록이 없는 항목입니다. 이미 교체하셨다면 항목을 눌러 이력으로 입력해 주세요.</div>` : ''}
+  ${next ? `<div class="h3">다음 로드맵</div><div class="card"><div style="display:flex;justify-content:space-between;align-items:baseline"><b style="font-size:18px">${fmt(next.예정km)}km</b><span class="badge ${next.level}">${next.remKm < 0 ? fmt(-next.remKm) + 'km 지남' : fmt(next.remKm) + 'km 남음'}</span></div>
+    <div class="rt" style="margin-top:6px">${esc(next.구분)} · ${esc(next.항목)}</div>
+    <div class="bar"><i style="width:${pct}%"></i></div><div class="rs">${next.estDays != null ? eta(next.estDays) : ''}</div></div>` : ''}
+  <details class="list"><summary>여유 있는 항목 ${oks.length}개</summary><div class="rows">${oks.map(statusRow).join('')}</div></details>
+  ${car.비고 ? `<details class="card"><summary>차량 메모</summary><div class="inner">${esc(car.비고)}</div></details>` : ''}
+  <div style="text-align:center"><button class="link" data-act="conn">구글시트 연결 설정</button>${apiUrl() ? '' : ` · <button class="link" data-act="reset">데모 데이터 되돌리기</button>`}</div>`;
+}
+
+/* ===== 연결 설정 ===== */
+function openConn(){
+  const sh = $('#sheet');
+  sh.innerHTML = `<h3>구글시트 연결</h3><form id="cfrm" class="form" autocomplete="off" novalidate>
+    <label><span>웹 앱 URL (Apps Script 배포 주소)</span><input name="u" value="${esc(apiUrl())}" placeholder="https://script.google.com/macros/s/…/exec"></label>
+    <div class="hint" style="margin:-6px 0 14px">이 기기의 브라우저에만 저장됩니다. 비우고 저장하면 연결이 해제됩니다.</div>
+    <div class="acts"><button type="button" class="btn" data-act="closeSheet">닫기</button><button class="btn primary" type="submit">저장</button></div><div class="ferr" id="ferr"></div></form>`;
+  $('#scrim').classList.add('on'); sh.classList.add('on');
+}
+function renderWelcome(){
+  document.body.classList.add('nodb');
+  $('#tab-home').innerHTML = `<div class="card"><h2 class="h2" style="margin-top:0">구글시트 연결이 필요합니다</h2>
+    <p style="color:var(--sub);margin:0 0 14px">이 화면은 데이터를 저장하지 않고, 연결한 구글시트에서만 읽고 씁니다. 처음 한 번만 Apps Script 웹 앱 주소를 입력해 주세요.</p>
+    <button class="btn primary" data-act="conn">연결 주소 입력</button></div>`;
+  $('#conn').textContent = '연결 안 됨'; $('#conn').className = 'conn';
+}
+
+/* ===== 입력 ===== */
+function pendingRoad(){ return C.road.filter(r => !r.done); }
+function suggestRoad(){
+  if (S.rmTouched) return;
+  const codes = S.lines.map(l => l.code);
+  const hit = pendingRoad().find(r => String(r.항목코드 || '').split(',').some(c => codes.includes(c.trim())));
+  const sel = $('#rmSel'); if (sel) sel.value = hit ? hit.ID : '';
+}
+function renderLines(){
+  const box = $('#lines'); if (!box) return;
+  box.innerHTML = S.lines.map((l, i) => `<div class="line"><div class="ln">${l.code === 'ETC' ? `<input data-ln="name" data-i="${i}" placeholder="항목 이름" value="${esc(l.name)}" style="width:100%;min-height:38px">` : esc(l.name)}</div>
+    <input data-ln="cost" data-i="${i}" inputmode="numeric" placeholder="비용(원)" value="${l.cost ?? ''}"><button type="button" class="x" data-rm="${i}" aria-label="삭제">×</button></div>`).join('')
+    || `<div class="hint">아래에서 항목을 골라 추가하세요. 여러 개를 함께 정비했다면 모두 추가합니다.</div>`;
+  suggestRoad();
+}
+function renderInput(){
+  const el = $('#tab-input'); const type = S.inType; const sheet = TYPES[type];
+  let body = '';
+  if (type === '정비') {
+    const groups = {};
+    C.items.forEach(i => (groups[i.분류] ||= []).push(i));
+    body = `
+    ${fieldHTML(sheet, ['일자','date'], ymd(C.t))}
+    ${fieldHTML(sheet, ['주행거리','num'], C.currentKm)}
+    <div class="field"><span class="lbl">정비 항목</span>
+      <div class="addrow"><select id="itemSel"><option value="">항목 선택…</option>
+        ${Object.entries(groups).map(([g, arr]) => `<optgroup label="${esc(g)}">${arr.map(i => `<option value="${esc(i.항목코드)}">${esc(i.항목명)}</option>`).join('')}</optgroup>`).join('')}
+        <option value="ETC">직접 입력 (목록에 없음)</option></select>
+        <button type="button" class="btn" id="addItem">추가</button></div>
+      <div id="lines"></div></div>
+    <label><span>업체</span><input name="업체" list="vendors" placeholder="정비소 이름"></label>
+    <datalist id="vendors">${DB['M_업체'].map(v => `<option value="${esc(v.업체명)}">`).join('')}</datalist>
+    <label><span>로드맵 연결 (선택)</span><select id="rmSel" name="로드맵ID"><option value="">연결 안 함</option>
+      ${pendingRoad().map(r => `<option value="${esc(r.ID)}">${fmt(r.예정km)}km · ${esc(r.항목.length > 26 ? r.항목.slice(0, 26) + '…' : r.항목)}</option>`).join('')}</select>
+      <div class="hint">연결하면 로드맵에서 '완료'로 표시됩니다.</div></label>
+    <label><span>비고</span><input name="비고"></label>`;
+  } else {
+    body = FIELDS[sheet].map(f => {
+      let v = null;
+      if (f[0] === '일자') v = ymd(C.t);
+      if (f[0] === '주행거리' && (type === '주행거리' || type === '세금·보험')) v = type === '주행거리' ? C.currentKm : null;
+      return fieldHTML(sheet, f, v);
+    }).join('');
+    if (type === '세금·보험') body += `<label id="nextInsp" style="display:none"><span>다음 검사일</span><input type="date" name="다음검사일"></label>`;
+  }
+  el.innerHTML = `<h2 class="h2">기록 입력</h2>
+    <div class="seg">${Object.keys(TYPES).map(t => `<button type="button" data-type="${t}" class="${t === type ? 'on' : ''}">${t}</button>`).join('')}</div>
+    <form id="frm" class="card form" autocomplete="off" novalidate>${body}<button class="btn primary" type="submit">저장</button><div class="ferr" id="ferr" role="alert"></div></form>`;
+  if (type === '정비') renderLines();
+}
+async function submitForm(form){
+  const type = S.inType, sheet = TYPES[type], err = $('#ferr'); err.textContent = '';
+  const f = readFields(form, sheet);
+  const ops = []; const push = (sh, row) => ops.push({ action:'append', sheet: sh, row: { ID: uid(PREFIX[sh]), ...row } });
+  if (type === '정비') {
+    if (!S.lines.length) return err.textContent = '정비 항목을 1개 이상 추가해 주세요.';
+    if (S.lines.some(l => l.code === 'ETC' && !String(l.name).trim())) return err.textContent = '직접 입력 항목의 이름을 적어 주세요.';
+    if (!isNum(f.주행거리)) return err.textContent = '주행거리를 입력해 주세요.';
+    if (!f.일자) return err.textContent = '일자를 입력해 주세요.';
+    const rm = form.elements['로드맵ID'].value;
+    S.lines.forEach(l => push('R_정비이력', { 일자:f.일자, 주행거리:f.주행거리, 항목코드:l.code, 항목명:l.name.trim(), 업체:f.업체, 비용:l.cost, 로드맵ID:rm || null, 비고:f.비고 }));
+    if (f.주행거리 > C.currentKm) push('R_주행거리', { 일자:f.일자, 주행거리:f.주행거리, 비고:'정비 입력 시 자동 기록' });
+  } else if (type === '주행거리') {
+    if (!isNum(f.주행거리) || !f.일자) return err.textContent = '일자와 주행거리를 입력해 주세요.';
+    if (f.주행거리 < C.currentKm) return err.textContent = `현재 기록(${fmt(C.currentKm)}km)보다 작습니다. 숫자를 확인해 주세요.`;
+    push(sheet, f);
+  } else if (type === '세금·보험') {
+    if (!f.일자) return err.textContent = '일자를 입력해 주세요.';
+    if (!isNum(f.금액) && f.구분 !== '종합검사') return err.textContent = '금액을 입력해 주세요.';
+    push(sheet, f);
+    if (f.구분 === '종합검사' && isNum(f.주행거리) && f.주행거리 > C.currentKm) push('R_주행거리', { 일자:f.일자, 주행거리:f.주행거리, 비고:'종합검사 시 주행거리' });
+    const ni = form.elements['다음검사일'] && form.elements['다음검사일'].value;
+    if (f.구분 === '종합검사' && ni && C.car.ID) ops.push({ action:'update', sheet:'M_차량', id:C.car.ID, row:{ 다음검사일: ni } });
+  } else {
+    if (!f.내용) return err.textContent = '내용을 입력해 주세요.';
+    push(sheet, f);
+  }
+  await commit(ops, '저장했어요', () => { S.lines = []; go(type === '정비' ? 'home' : 'history'); });
+}
+async function commit(ops, msg, after){
+  const btns = $$('button[type=submit],.sheet .btn'); btns.forEach(b => b.disabled = true);
+  try { DB = await API.send(ops); toast(msg); closeSheet(); if (after) after(); else render(); }
+  catch (e) { toast('저장 실패: ' + e.message); const er = $('#ferr'); if (er) er.textContent = '저장하지 못했습니다. 연결을 확인하고 다시 시도해 주세요.'; }
+  finally { btns.forEach(b => b.disabled = false); }
+}
+
+/* ===== 이력 ===== */
+function allRecords(){
+  const r = [];
+  DB['R_정비이력'].forEach(x => r.push({ sheet:'R_정비이력', kind:'정비', id:x.ID, date:x.일자, km:x.주행거리, title:x.항목명, meta:[x.업체, x.비고].filter(Boolean).join(' · '), amt:x.비용 }));
+  DB['R_세금보험'].forEach(x => r.push({ sheet:'R_세금보험', kind:'세금·보험', id:x.ID, date:x.일자, km:x.주행거리, title:x.구분, meta:x.비고 || '', amt:x.금액 }));
+  DB['R_사고'].forEach(x => r.push({ sheet:'R_사고', kind:'사고', id:x.ID, date:x.일자, km:null, title:x.내용, meta:[x.처리상태, x.비고].filter(Boolean).join(' · '), amt:null }));
+  DB['R_주행거리'].forEach(x => r.push({ sheet:'R_주행거리', kind:'주행거리', id:x.ID, date:x.일자, km:x.주행거리, title:'주행거리 기록', meta:x.비고 || '', amt:null }));
+  return r;
+}
+function renderHistory(){
+  const el = $('#tab-history');
+  const chips = ['전체','정비','세금·보험','사고','주행거리'];
+  let recs = allRecords().filter(r => S.hFilter === '전체' ? r.kind !== '주행거리' : r.kind === S.hFilter);
+  const q = S.hq.trim().toLowerCase();
+  if (q) recs = recs.filter(r => (r.title + ' ' + r.meta).toLowerCase().includes(q));
+  recs.sort((a,b) => (a.date && b.date) ? (a.date < b.date ? 1 : a.date > b.date ? -1 : (b.km||0) - (a.km||0)) : a.date ? -1 : b.date ? 1 : (b.km||0) - (a.km||0));
+  el.innerHTML = `<h2 class="h2">이력</h2>
+    <div class="chips">${chips.map(c => `<button class="chip ${c === S.hFilter ? 'on' : ''}" data-chip="${c}">${c}</button>`).join('')}</div>
+    <input class="search" id="hq" type="search" placeholder="항목·업체·메모 검색" value="${esc(S.hq)}">
+    ${recs.length ? `<div class="list">${recs.map(r => `<button class="row hrow" data-edit="${r.sheet}|${esc(r.id)}">
+      <div class="rm"><div class="rt"><span class="tag">${r.kind}</span>${esc(r.title.length > 60 ? r.title.slice(0,60) + '…' : r.title)}</div>
+      <div class="rs">${esc([r.date || '일자 미상', isNum(r.km) ? fmt(r.km) + 'km' : '', r.meta].filter(Boolean).join(' · '))}</div></div>
+      ${r.amt ? `<span class="amt">${fmt(r.amt)}원</span>` : ''}</button>`).join('')}</div>` : `<div class="card empty">해당하는 기록이 없습니다.</div>`}`;
+  const q2 = $('#hq'); q2.addEventListener('input', e => { S.hq = e.target.value; const pos = e.target.selectionStart; renderHistory(); const n = $('#hq'); n.focus(); n.setSelectionRange(pos, pos); });
+}
+function openEdit(sheet, id){
+  const row = DB[sheet].find(x => String(x[idField(sheet)]) === String(id)); if (!row) return;
+  const sh = $('#sheet');
+  sh.innerHTML = `<h3>기록 수정</h3><form id="efrm" class="form" autocomplete="off" novalidate>${FIELDS[sheet].map(f => fieldHTML(sheet, f, row[f[0]])).join('')}
+    <div class="acts"><button type="button" class="btn danger" id="delBtn">삭제</button><button class="btn primary" type="submit">저장</button></div><div class="ferr" id="ferr"></div></form>`;
+  $('#scrim').classList.add('on'); sh.classList.add('on');
+  $('#efrm').addEventListener('submit', e => { e.preventDefault(); commit([{ action:'update', sheet, id, row: readFields(e.target, sheet) }], '수정했어요'); });
+  const del = $('#delBtn'); del.addEventListener('click', () => {
+    if (!del.classList.contains('arm')) { del.classList.add('arm'); del.textContent = '정말 삭제'; setTimeout(() => { del.classList.remove('arm'); del.textContent = '삭제'; }, 3000); return; }
+    commit([{ action:'delete', sheet, id }], '삭제했어요');
+  });
+}
+function closeSheet(){ $('#scrim').classList.remove('on'); $('#sheet').classList.remove('on'); }
+
+/* ===== 비용 ===== */
+function costRecords(){
+  const r = [];
+  DB['R_정비이력'].forEach(h => { if (isNum(h.비용) && h.비용) r.push({ date:h.일자, amt:h.비용, cat:(C.itemMap[h.항목코드] || {}).분류 ? '정비·' + C.itemMap[h.항목코드].분류 : '정비·기타' }); });
+  DB['R_세금보험'].forEach(h => { if (isNum(h.금액) && h.금액) r.push({ date:h.일자, amt:h.금액, cat:h.구분 }); });
+  return r;
+}
+function sumYear(y){ return costRecords().filter(r => r.date && String(r.date).startsWith(y + '-')).reduce((a, r) => a + r.amt, 0); }
+function renderCost(){
+  const el = $('#tab-cost'); const y = S.year; const recs = costRecords();
+  const inYear = recs.filter(r => r.date && r.date.startsWith(y + '-'));
+  const undated = recs.filter(r => !r.date).reduce((a, r) => a + r.amt, 0);
+  const cats = [...new Set(inYear.map(r => r.cat))].sort();
+  const grid = {}; cats.forEach(c => grid[c] = Array(12).fill(0));
+  inYear.forEach(r => { grid[r.cat][Number(r.date.slice(5, 7)) - 1] += r.amt; });
+  const monthly = Array(12).fill(0); cats.forEach(c => grid[c].forEach((v, m) => monthly[m] += v));
+  const total = monthly.reduce((a, b) => a + b, 0), max = Math.max(...monthly, 1);
+  const bars = monthly.map((v, m) => { const h = Math.round(v / max * 70), x = 8 + m * 24;
+    return `<rect class="b" x="${x}" y="${84 - h}" width="16" height="${h}" rx="3"/>${v ? `<text class="v" x="${x+8}" y="${80 - h}" text-anchor="middle">${Math.round(v/10000*10)/10}</text>` : ''}<text x="${x+8}" y="98" text-anchor="middle">${m+1}</text>`; }).join('');
+  el.innerHTML = `<h2 class="h2">비용</h2>
+    <div class="yr"><button data-year="-1" aria-label="이전 연도">‹</button><b>${y}년</b><button data-year="1" aria-label="다음 연도">›</button></div>
+    <div class="card"><div class="stat" style="padding:0;box-shadow:none;background:none"><div class="lb">${y}년 총 지출</div></div><div class="tot">${total ? fmt(total) + '원' : '—'}</div>
+      ${total ? `<svg viewBox="0 0 300 104" width="100%" role="img" aria-label="월별 지출(만원)">${bars}</svg><div class="hint">월별 지출 (단위: 만원)</div>` : `<div class="hint" style="margin-top:8px">이 해에 일자와 금액이 함께 입력된 기록이 없습니다. 정비 입력 시 항목별 비용 칸에 금액을 적으면 여기에 자동 집계됩니다.</div>`}</div>
+    ${cats.length ? `<div class="tbl"><table><thead><tr><th>구분</th>${Array.from({length:12},(_, i) => `<th>${i+1}월</th>`).join('')}<th class="sum">합계</th></tr></thead><tbody>
+      ${cats.map(c => `<tr><td>${esc(c)}</td>${grid[c].map(v => `<td>${v ? fmt(v) : ''}</td>`).join('')}<td class="sum">${fmt(grid[c].reduce((a, b) => a + b, 0))}</td></tr>`).join('')}
+      <tr><td>합계</td>${monthly.map(v => `<td class="sum">${v ? fmt(v) : ''}</td>`).join('')}<td class="sum">${fmt(total)}</td></tr></tbody></table></div>` : ''}
+    ${undated ? `<div class="note">일자가 없는 기록의 비용 ${fmt(undated)}원은 연도별 집계에서 제외됩니다. 이력에서 일자를 입력해 주세요.</div>` : ''}`;
+  const tb = $('.tbl');   // 가장 최근 지출 월이 보이도록 표를 가로 스크롤
+  if (tb) { const lastM = monthly.reduce((a, v, i) => v ? i : a, -1); if (lastM > 2) tb.scrollLeft = (lastM - 2) * 64; }
+}
+
+/* ===== 로드맵 ===== */
+function renderRoad(){
+  const el = $('#tab-road'); const pend = C.road.filter(r => !r.done);
+  const lo = pend.reduce((a, r) => a + (r.예상비용_최소 || 0), 0), hi = pend.reduce((a, r) => a + (r.예상비용_최대 || 0), 0);
+  const last = C.road[C.road.length - 1];
+  el.innerHTML = `<h2 class="h2">12만km 로드맵</h2>
+    <div class="card"><div class="rs">현재 ${fmt(C.currentKm)}km${last ? ` → ${fmt(last.예정km)}km까지 ${fmt(Math.max(0, last.예정km - C.currentKm))}km` : ''}</div>
+      <div class="tot" style="margin-top:4px">${hi ? `${won(lo)} ~ ${won(hi)}` : '—'}</div>
+      <div class="hint">남은 로드맵 중 예산이 적힌 구간의 합계입니다. (소모품 비용 제외)</div></div>
+    <div class="tl">${C.road.map(r => `<div class="step ${r.level}"><div class="card">
+      <div class="top"><span class="km">${fmt(r.예정km)}km</span><span class="badge ${r.level}">${r.done ? '완료' + (r.doneDate ? ' ' + r.doneDate : '') : r.remKm < 0 ? fmt(-r.remKm) + 'km 지남' : fmt(r.remKm) + 'km 남음'}</span></div>
+      <div class="it"><b>${esc(r.구분)}</b> · ${esc(r.항목)}</div><div class="pu">${esc(r.목적 || '')}</div>
+      ${!r.done && r.estDays != null ? `<div class="pu" style="margin-top:4px">${eta(r.estDays)}</div>` : ''}
+      ${r.예상비용_최소 ? `<div class="cost">예산 ${won(r.예상비용_최소)} ~ ${won(r.예상비용_최대)}</div>` : ''}
+      ${r.메모 ? `<details><summary>전문가 팁·메모</summary><div class="inner">${esc(r.메모)}</div></details>` : ''}
+    </div></div>`).join('')}</div>`;
+}
+
+/* ===== 이벤트 ===== */
+document.addEventListener('click', e => {
+  const t = e.target.closest('button,[data-go]'); if (!t) { return; }
+  if (t.dataset.go) return go(t.dataset.go, { type: t.dataset.type });
+  if (t.dataset.act === 'fix') return go('input', { code: t.dataset.code });
+  if (t.dataset.act === 'conn') return openConn();
+  if (t.dataset.act === 'closeSheet') return closeSheet();
+  if (t.dataset.act === 'reset') { store.del('carlog-demo'); API.load().then(d => { DB = d; toast('데모 데이터를 되돌렸어요'); render(); }); return; }
+  if (t.dataset.type) { S.inType = t.dataset.type; S.lines = []; S.rmTouched = false; return render(); }
+  if (t.id === 'addItem') {
+    const sel = $('#itemSel'); const code = sel.value; if (!code) return;
+    if (code !== 'ETC' && S.lines.some(l => l.code === code)) return toast('이미 추가된 항목입니다');
+    const it = C.itemMap[code]; S.lines.push({ code, name: code === 'ETC' ? '' : it.항목명, cost: null }); sel.value = ''; return renderLines();
+  }
+  if (t.dataset.rm != null) { S.lines.splice(Number(t.dataset.rm), 1); return renderLines(); }
+  if (t.dataset.chip) { S.hFilter = t.dataset.chip; return renderHistory(); }
+  if (t.dataset.year) { S.year += Number(t.dataset.year); return renderCost(); }
+  if (t.dataset.edit) { const [sh, id] = t.dataset.edit.split('|'); return openEdit(sh, id); }
+});
+document.addEventListener('input', e => {
+  const el = e.target;
+  if (el.dataset.ln === 'cost') S.lines[el.dataset.i].cost = toNum(el.value);
+  if (el.dataset.ln === 'name') S.lines[el.dataset.i].name = el.value;
+});
+document.addEventListener('change', e => {
+  if (e.target.id === 'rmSel') S.rmTouched = true;
+  if (e.target.name === '구분' && $('#nextInsp')) $('#nextInsp').style.display = e.target.value === '종합검사' ? 'block' : 'none';
+});
+document.addEventListener('submit', e => {
+  if (e.target.id === 'frm') { e.preventDefault(); submitForm(e.target); }
+  if (e.target.id === 'cfrm') {
+    e.preventDefault(); const u = e.target.elements.u.value.trim();
+    if (u && !/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(u)) { $('#ferr').textContent = 'Apps Script 웹 앱 주소(…/macros/s/…/exec)를 입력해 주세요.'; return; }
+    if (u) store.set('carlog-api', u); else store.del('carlog-api');
+    closeSheet(); start();
+  }
+});
+$('#scrim').addEventListener('click', closeSheet);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
+
+/* ===== 시작 ===== */
+async function start(){
+  const conn = $('#conn'); DB = null;
+  // 주소 뒤에 #u=<웹앱URL> 로 열면 이 기기에 연결 주소를 저장합니다
+  const m = location.hash.match(/^#u=(.+)$/);
+  if (m) { try { const u = decodeURIComponent(m[1]); if (/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(u)) store.set('carlog-api', u); } catch(e){} try { history.replaceState(null, '', location.pathname + location.search); } catch(e){} }
+  if (!apiUrl() && !SEED) return renderWelcome();
+  document.body.classList.remove('nodb');
+  try {
+    DB = await API.load();
+    conn.textContent = apiUrl() ? '구글시트 연결됨' : '데모 모드'; conn.className = 'conn ' + (apiUrl() ? 'ok' : 'demo');
+    if (!apiUrl()) conn.title = '구글시트 연결 전 — 이 기기 브라우저에만 저장됩니다';
+    render();
+  } catch (e) {
+    conn.textContent = '연결 실패'; conn.className = 'conn err';
+    go('home'); $('#tab-home').innerHTML = `<div class="card empty">구글시트에서 데이터를 불러오지 못했습니다.<br><small>${esc(e.message)}</small><br><br><button class="btn" onclick="location.reload()">다시 시도</button> <button class="btn" data-act="conn">연결 설정</button></div>`;
+  }
+}
+start();
+</script>
+</body>
+</html>
