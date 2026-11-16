@@ -107,6 +107,9 @@ function applyOp_(op) {
   const idCol = headers.indexOf(idName);
 
   if (op.action === 'append') {
+    // 같은 ID가 이미 있으면 건너뜀 (응답 지연 후 다시 저장해도 중복 행이 생기지 않게)
+    const newId = op.row && op.row[idName];
+    if (newId !== undefined && newId !== null && newId !== '' && findRow_(sh, idCol, newId) >= 0) return;
     const arr = headers.map(function (h) { return clean_(op.row[h]); });
     const target = sh.getLastRow() + 1;
     sh.getRange(target, 1, 1, arr.length).setValues([arr]);
@@ -114,6 +117,7 @@ function applyOp_(op) {
   }
 
   const row = findRow_(sh, idCol, op.id);
+  if (row < 0 && op.action === 'delete') return;   // 이미 지워진 행: 다시 삭제해도 오류 없이 통과
   if (row < 0) throw new Error('해당 ID를 찾을 수 없습니다: ' + op.id);
 
   if (op.action === 'update') {
